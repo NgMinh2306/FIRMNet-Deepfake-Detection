@@ -186,4 +186,3 @@ python inference.py --image_path
 ## References
 
 [To be updated after Springer publication]
-

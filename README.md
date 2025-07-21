@@ -67,7 +67,7 @@ Download **FF++** dataset from [FaceForensics++ GitHub](https://github.com/ondya
 **3.1 DFDC Dataset (Deepfake Detection Challenge):**  
 **Before extraction:**  
 
-
+```
 data/videos/
 ├── dfdc_train_part_0/
 │   ├── abc.mp4
@@ -78,8 +78,11 @@ data/videos/
 │   ├── jkl.mp4
 │   └── ...
 └── metadata.csv
+```
 
 **After extraction:**  
+
+<pre>
 data/images/
 ├── FAKE/
 │   ├── abc_000.png
@@ -93,6 +96,7 @@ data/images/
 │   ├── ...
 │   ├── jkl_000.png
 │   └── ...
+<pre>
 
 Each image is named as `videoName_frameIndex.png`, and saved under `FAKE` or `REAL` according to labels from `metadata.csv`.
 

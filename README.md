@@ -82,7 +82,7 @@ data/videos/
 
 **After extraction:**  
 
-<pre>
+```
 data/images/
 ├── FAKE/
 │   ├── abc_000.png
@@ -96,13 +96,14 @@ data/images/
 │   ├── ...
 │   ├── jkl_000.png
 │   └── ...
-<pre>
+```
 
 Each image is named as `videoName_frameIndex.png`, and saved under `FAKE` or `REAL` according to labels from `metadata.csv`.
 
 **3.2 FF++ Dataset (FaceForensics++):**
 **Before extraction:**  
 
+```
 data/videos/
 ├── real/
 │ ├── vid001.mp4
@@ -112,9 +113,11 @@ data/videos/
 │ ├── vid003.mp4
 │ ├── vid004.mp4
 │ └── ...
-
+```
 
 **After extraction:**  
+
+```
 data/images/
 ├── REAL/
 │ ├── vid001_000.png
@@ -124,6 +127,7 @@ data/images/
 │ ├── vid003_000.png
 │ ├── vid004_001.png
 │ └── ...
+```
 
 REAL and FAKE labels are moved from the original folder names (`FAKE` or `REAL`). Face crop images are also in `videoName_frameIndex.png` format.
 

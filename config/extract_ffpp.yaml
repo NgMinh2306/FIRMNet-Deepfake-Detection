@@ -1,0 +1,7 @@
+dataset: ffpp
+video_root_dir: data/videos_ffpp      
+image_root_dir: data/images_ffpp      
+num_frames: 20
+min_frame_gap: 10
+margin_percent: 40
+resize_dim: [224, 224]

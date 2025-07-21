@@ -1,0 +1,50 @@
+# Logging & Dataset
+log_dir: logs
+data_dir: ./data/images      
+val_ratio: 0.15
+batch_size: 32
+num_workers: 2
+
+# # Augmentation presets
+# augment_strong: false       # Bật preset augment mạnh
+# color_jitter: false         # Bật preset biến đổi màu
+# use_imagenet_norm: false    # Normalize theo ImageNet
+
+# Resize & Crop
+resize_max: 256
+crop_height: 224
+crop_width: 224
+hflip_prob: 0.5
+
+# Affine
+affine_trans: 0.05
+affine_scale: 0.05
+affine_rotate: 5
+affine_p: 0.3
+
+# Blur
+blur_limit: 3
+blur_p: 0.3
+
+# Noise
+noise_std_min: 0.039   # ~10/255
+noise_std_max: 0.196   # ~50/255
+noise_p: 0.2
+
+# Color transforms
+brightness_contrast_p: 0.3
+hsv_p: 0.2
+rgbshift_p: 0.2
+clahe_p: 0.2
+
+# Downscale & JPEG
+downscale_range: [0.25, 0.75]
+downscale_p: 0.2
+jpeg_quality: [30, 80]
+jpeg_p: 0.2
+
+# Coarse dropout (CutOut)
+coarse_num_holes: [3, 6]
+coarse_h_range: [0.05, 0.15]
+coarse_w_range: [0.05, 0.15]
+coarse_p: 0.3

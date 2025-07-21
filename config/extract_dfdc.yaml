@@ -1,0 +1,9 @@
+dataset: dfdc
+metadata_path: data/videos/metadata.csv
+video_root_dir: data/videos
+image_root_dir: data/images
+num_frames: 20
+min_frame_gap: 10
+margin_percent: 40
+resize_dim: [224, 224]
+fake_real_ratio: 1.0

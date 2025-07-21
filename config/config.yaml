@@ -1,0 +1,89 @@
+# =============================
+# General Training Configuration
+# =============================
+
+# Main parameters
+pretrained: null
+epochs: 5
+device: cuda
+
+# Logging & Dataset (from transform.yaml)
+log_dir: logs
+data_dir: ./data/images
+val_ratio: 0.15
+batch_size: 32
+num_workers: 2
+
+# Augmentation presets (from transform.yaml)
+augment_strong: false
+color_jitter: false
+use_imagenet_norm: false
+
+# Resize & Crop (from transform.yaml)
+resize_max: 256
+crop_height: 224
+crop_width: 224
+hflip_prob: 0.5
+
+# Affine (from transform.yaml)
+affine_trans: 0.05
+affine_scale: 0.05
+affine_rotate: 5
+affine_p: 0.3
+
+# Blur (from transform.yaml)
+blur_limit: 3
+blur_p: 0.3
+
+# Noise (from transform.yaml)
+noise_std_min: 0.039
+noise_std_max: 0.196
+noise_p: 0.2
+
+# Color transforms (from transform.yaml)
+brightness_contrast_p: 0.3
+hsv_p: 0.2
+rgbshift_p: 0.2
+clahe_p: 0.2
+
+# Downscale & JPEG (from transform.yaml)
+downscale_range: [0.25, 0.75]
+downscale_p: 0.2
+jpeg_quality: [30, 80]
+jpeg_p: 0.2
+
+# Coarse dropout (CutOut) (from transform.yaml)
+coarse_num_holes: [3, 6]
+coarse_h_range: [0.05, 0.15]
+coarse_w_range: [0.05, 0.15]
+coarse_p: 0.3
+
+# =============================
+# Training Configuration
+# =============================
+
+# Optimizer 
+opt: adam
+lr: 0.0001  # 1e-4
+weight_decay: 1e-6
+
+# Scheduler 
+sched: cosine
+warmup: linear
+warmup_epochs: 3
+scheduler_params: {}
+
+# Loss 
+soft: false  # Use FocalLoss by default
+class_weights: [1.0, 1.0]
+gamma: 2.0
+
+# Metrics 
+metrics: ['AP', 'F1 score', 'precision', 'recall', 'EER']
+
+# Callback 
+checkpoint_dir: checkpoints
+monitor: val_loss
+mode: min
+save_interval: 3
+save_best_only: false

@@ -1,0 +1,6 @@
+Note.ipynb
+logs/
+checkpoints/
+data/images/
+data/videos/
+*.pyc

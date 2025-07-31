@@ -66,7 +66,7 @@ class FrequencyAttentionGate(nn.Module):
             fft = torch.fft.fftshift(fft, dim=1)
 
         # Regularization
-        if self.regularization == 'mask':
+        if self.training and self.regularization == 'mask':
             fft = global_frequency_masking(
                 fft,
                 mask_ratio=self.mask_ratio,
@@ -95,7 +95,16 @@ class FrequencyAttentionGate(nn.Module):
             fft = torch.fft.ifftshift(fft, dim=1)
             out = torch.fft.ifft(fft, dim=1, norm=self.fft_norm).real
 
-        return F.relu(out) if self.apply_relu else out
+        # Dropout-style scaling at inference
+        if not self.training and self.regularization == 'mask':
+            out = out * (1 - self.mask_ratio)
+
+        # Apply ReLU if needed
+        if self.apply_relu:
+            out = F.relu(out)
+
+        return out
+
 
 
 if __name__ == "__main__":

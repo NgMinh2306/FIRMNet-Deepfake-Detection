@@ -53,9 +53,9 @@ class FrequencyAttentionGate(nn.Module):
 
         # conv stack sau IFFT (chỉ dùng nếu apply_convolution=True)
         self.post_conv = nn.Sequential(
-            nn.Conv2d(in_channels, in_channels, kernel_size=3, padding=1, bias=False),
+            nn.Conv2d(in_channels, in_channels * 2, kernel_size=3, padding=1, bias=False),
             nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels, in_channels, kernel_size=1, bias=False),
+            nn.Conv2d(in_channels * 2, in_channels, kernel_size=1, bias=False),
             nn.ReLU(inplace=True)
         ) if apply_convolution else nn.Identity()
 

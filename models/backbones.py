@@ -127,22 +127,27 @@ class FAGateBlockStack(nn.Module):
 
         Args:
             in_channels (int): Number of input channels.
-            config_list (List[str]): List of regularization methods for each layer (zero/mask/None).
+            config_list (List[str]): List of regularization methods for each layer 
+                                     (zero/mask/None). The last layer will always 
+                                     apply convolution after IFFT.
         """
         super().__init__()
-        self.layers = nn.ModuleList([
-            FrequencyAttentionGate( 
-                in_channels=in_channels,
-                target='Channel',
-                regularization=cfg,
-                target_band='low+mid' if cfg == 'zero' else 'high',
-                mask_ratio=0.5 if cfg == 'mask' else 0.0,
-                scale=3,
-                fft_norm='ortho',
-                apply_relu=False
+        self.layers = nn.ModuleList()
+        total_layers = len(config_list)
+
+        for idx, cfg in enumerate(config_list):
+            self.layers.append(
+                FrequencyAttentionGate(
+                    in_channels=in_channels,
+                    target='Channel',
+                    regularization=cfg,
+                    target_band='low+mid' if cfg == 'zero' else 'high',
+                    mask_ratio=0.3 if cfg == 'mask' else 0.0,
+                    scale=3,
+                    fft_norm='ortho',
+                    apply_convolution=(idx == total_layers - 1) 
+                )
             )
-            for cfg in config_list
-        ])
 
     def forward(self, x):
         for layer in self.layers:

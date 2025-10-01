@@ -6,7 +6,6 @@ from data.dataloader import get_dataloaders, load_config
 from data.transforms import apply_shortcut_flags
 import argparse
 import json
-from types import SimpleNamespace
 
 # ==========================
 # 2. Build Model (CNN + FAGate + FER)
@@ -18,18 +17,14 @@ import torch
 # 3. Loss, Optimizer, Scheduler, Callback, Train Loop
 # =============================
 from train.losses import FocalLoss
-from train.optimizer import choose_optimizer, get_scheduler
+from train.optimizer import choose_optimizer
 from train.callbacks import ModelCheckpoint
 from train.trainer import train_model
 
 logger = get_logger(__name__, log_dir="logs", log_filename="main.log")
 
-def load_data(cfg_path):
-    # Load config (yaml or json)
-    logger.info(f"Loading data config from {cfg_path}")
-    config_dict = load_config(cfg_path)
-    args = argparse.Namespace(**config_dict)
 
+def load_data(args):
     # Apply augmentation shortcut flags
     apply_shortcut_flags(args)
 
@@ -47,7 +42,8 @@ def load_data(cfg_path):
         logger=logger
     )
 
-    return train_loader, val_loader, args
+    return train_loader, val_loader
+
 
 def build_model(device: torch.device, num_classes=2, pretrained_path=None):
     logger.info("Initializing model: EfficientNetV2-S + FAGate + FER")
@@ -68,38 +64,42 @@ def build_model(device: torch.device, num_classes=2, pretrained_path=None):
 
     return model
 
-def setup_training(model, train_loader, val_loader, device, num_epochs=20, use_amp=True):
+
+def setup_training(model, train_loader, val_loader, device, args, num_epochs=20):
     # Loss function
     class_weights = torch.tensor([1.0, 1.0], dtype=torch.float32).to(device)
-    criterion = FocalLoss(alpha=class_weights, gamma=2.0, reduction='mean')
+    criterion = FocalLoss(
+        alpha=class_weights,
+        gamma=float(getattr(args, "loss_gamma", 2.0)),
+        reduction=getattr(args, "loss_reduction", "mean")
+    )
 
     # Optimizer
     optimizer = choose_optimizer(
         model,
-        optimizer_type='adam',
-        lr=1e-4,
-        weight_decay=1e-6
+        optimizer_type=args.opt,
+        lr=float(getattr(args, "lr", 1e-4)),
+        weight_decay=float(getattr(args, "weight_decay", 1e-6))
     )
 
     # Scheduler
     scheduler_config = {
-        'scheduler_type': 'cosine',
-        'warmup_type': 'linear',
-        'warmup_epochs': 3,
+        'scheduler_type': args.sched,
+        'warmup_type': args.warmup,
+        'warmup_epochs': args.warmup_epochs,
         'scheduler_params': {}
     }
 
     # ModelCheckpoint
     checkpoint_callback = ModelCheckpoint(
-        save_dir='checkpoints',
-        monitor='val_loss',
-        mode='min',
-        save_interval=3,
-        save_best_only=False,
+        save_dir=args.checkpoint_dir,
+        monitor=args.monitor,
+        mode=args.mode,
+        save_interval=args.save_interval,
+        save_best_only=args.save_best_only,
         verbose=True
     )
 
-    # Train loop
     history = train_model(
         model=model,
         train_loader=train_loader,
@@ -108,20 +108,18 @@ def setup_training(model, train_loader, val_loader, device, num_epochs=20, use_a
         optimizer=optimizer,
         num_epochs=num_epochs,
         device=device,
-        metric_add=['AP', 'F1 score', 'precision', 'recall', 'EER'],
+        metric_add=args.metrics,
         checkpoint_callback=checkpoint_callback,
-        use_amp=use_amp,
+        use_amp=getattr(args, "use_amp", True),
         use_scheduler=True,
         scheduler_config=scheduler_config,
         logger=logger
     )
-    
+
     return history
 
 
 if __name__ == "__main__":
-    import argparse
-
     parser = argparse.ArgumentParser(description="FAGNet Training Pipeline")
 
     parser.add_argument("--config", type=str, default="config/config.yaml",
@@ -146,35 +144,55 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--num_workers', type=int, default=2)
 
+    # Optimizer & scheduler
     parser.add_argument('--opt', type=str, default='adam', help="Optimizer type: adam | sgd | adamw")
+    parser.add_argument('--lr', type=float, default=1e-4, help="Learning rate")
+    parser.add_argument('--weight_decay', type=float, default=1e-6, help="Weight decay")
+
     parser.add_argument('--sched', type=str, default='cosine', help="Scheduler type")
     parser.add_argument('--warmup', type=str, default='linear', help="Warmup type: linear | cosine")
     parser.add_argument('--warmup_epochs', type=int, default=3, help="Number of warmup epochs")
-    parser.add_argument('--soft', action='store_true', help='Use SoftFocalLoss instead of FocalLoss')
-    parser.add_argument('--metrics', type=str, nargs='*', default=['AP', 'F1 score', 'precision', 'recall', 'EER'], help="Extra metrics to compute")
+
+    # Loss & metrics
+    parser.add_argument('--loss_gamma', type=float, default=2.0)
+    parser.add_argument('--loss_reduction', type=str, default="mean")
+    parser.add_argument('--metrics', type=str, nargs='*',
+                        default=['AP', 'F1 score', 'precision', 'recall', 'EER'])
+
+    # Callback
+    parser.add_argument('--checkpoint_dir', type=str, default="checkpoints")
+    parser.add_argument('--monitor', type=str, default="val_loss")
+    parser.add_argument('--mode', type=str, default="min")
+    parser.add_argument('--save_interval', type=int, default=1)
+    parser.add_argument('--save_best_only', type=bool, default=False)
 
     args = parser.parse_args()
 
-    # Load from config file if provided
+    # Load config file (yaml/json) and merge with CLI
     if args.config and args.config.endswith((".yaml", ".yml", ".json")):
         logger.info(f"Loading config from: {args.config}")
         cfg = load_config(args.config)
+
         for k, v in cfg.items():
-            setattr(args, k, v)
-        logger.info("Final configuration (from config file):")
+            # Prefer CLI > config.yaml
+            if not hasattr(args, k) or getattr(args, k) == parser.get_default(k):
+                setattr(args, k, v)
+
+        # logger.info("Final configuration (merged CLI + config):")
+        # logger.info(json.dumps(vars(args), indent=2))
     else:
         logger.info("Using manually provided command-line arguments:")
 
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
-    train_loader, val_loader, data_args = load_data(args.config)
-    
+    train_loader, val_loader = load_data(args)
+
     # Optional override
-    pretrained_path = args.pretrained or getattr(data_args, "pretrained_path", None)
-    num_epochs = args.epochs or getattr(data_args, "num_epochs", 20)
-    
+    pretrained_path = args.pretrained or getattr(args, "pretrained_path", None)
+    num_epochs = args.epochs or getattr(args, "num_epochs", 20)
+
     # Build model and train
     model = build_model(device, num_classes=2, pretrained_path=pretrained_path)
-    history = setup_training(model, train_loader, val_loader, device, num_epochs=num_epochs)
-    
+    history = setup_training(model, train_loader, val_loader, device, args, num_epochs=num_epochs)
+
     # Log training history
     logger.info("Training history from main: \n%s", history)

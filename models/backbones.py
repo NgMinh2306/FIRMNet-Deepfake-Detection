@@ -127,22 +127,27 @@ class FAGateBlockStack(nn.Module):
 
         Args:
             in_channels (int): Number of input channels.
-            config_list (List[str]): List of regularization methods for each layer (zero/mask/None).
+            config_list (List[str]): List of regularization methods for each layer 
+                                     (zero/mask/None). The last layer will always 
+                                     apply convolution after IFFT.
         """
         super().__init__()
-        self.layers = nn.ModuleList([
-            FrequencyAttentionGate( 
-                in_channels=in_channels,
-                target='Channel',
-                regularization=cfg,
-                target_band='low+mid' if cfg == 'zero' else 'high',
-                mask_ratio=0.5 if cfg == 'mask' else 0.0,
-                scale=3,
-                fft_norm='ortho',
-                apply_relu=False
+        self.layers = nn.ModuleList()
+        total_layers = len(config_list)
+
+        for idx, cfg in enumerate(config_list):
+            self.layers.append(
+                FrequencyAttentionGate(
+                    in_channels=in_channels,
+                    target='Channel',
+                    regularization=cfg,
+                    target_band='low+mid' if cfg == 'zero' else 'high',
+                    mask_ratio=0.3 if cfg == 'mask' else 0.0,
+                    scale=3,
+                    fft_norm='ortho',
+                    apply_convolution=(idx == total_layers - 1) 
+                )
             )
-            for cfg in config_list
-        ])
 
     def forward(self, x):
         for layer in self.layers:
@@ -197,7 +202,7 @@ class EfficientNetV2S(nn.Module):
             FusedMBConv(48, 48, 1, 4),
             FusedMBConv(48, 48, 1, 4)
         )
-        self.fag1 = FAGateBlockStack(48, ['zero', None, None, None])
+        self.fag1 = FAGateBlockStack(48, ['zero', None, None])
 
         self.stage3 = nn.Sequential(
             FusedMBConv(48, 64, 2, 4, 0.05),
@@ -205,13 +210,13 @@ class EfficientNetV2S(nn.Module):
             FusedMBConv(64, 64, 1, 4, 0.05),
             FusedMBConv(64, 64, 1, 4, 0.05)
         )
-        self.fag2 = FAGateBlockStack(64, ['mask', None, None, None])
+        self.fag2 = FAGateBlockStack(64, ['mask', None, None])
 
         self.stage4 = nn.Sequential(
             MBConv(64, 128, 2, 4, 0.25, 0.1),
             *[MBConv(128, 128, 1, 4, 0.25, 0.1) for _ in range(5)]
         )
-        self.fer = FERBlockStack(128, 6, use_groupnorm=True)
+        self.fer = FERBlockStack(128, 4, use_groupnorm=True)
 
         self.stage5 = nn.Sequential(
             MBConv(128, 160, 1, 6, 0.25, 0.15),

@@ -4,7 +4,7 @@
 
 # Main parameters
 pretrained: null
-epochs: 5
+epochs: 15
 device: cuda
 
 # Logging & Dataset (from transform.yaml)
@@ -85,5 +85,5 @@ metrics: ['AP', 'F1 score', 'precision', 'recall', 'EER']
 checkpoint_dir: checkpoints
 monitor: val_loss
 mode: min
-save_interval: 3
+save_interval: 1
 save_best_only: false

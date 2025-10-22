@@ -1,6 +1,8 @@
 Note.ipynb
 logs/
 checkpoints/
+checkpoints_test/
+test_ckpt/
 data/images/
 data/videos/
 *.pyc

@@ -44,8 +44,8 @@ Spectral regularization (e.g., random masking or suppression of low/mid frequenc
 **1. Clone the repository:** 
 
 ```sh
-git clone https://github.com/your-username/fa-cnn-deepfake-detection.git
-cd fa-cnn-deepfake-detection
+git clone https://github.com/NgMinh2306/FIRMNet-Deepfake-Detection.git
+cd FIRMNet_Deepfake_Detection
 ```
 
 **2. Clone the repository:** 

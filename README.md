@@ -1,4 +1,4 @@
-# FAGNet: Frequency-Aware CNN Framework for Robust Face Swapping Deepfake Detection
+# FIRM-Net: Frequency Integration at the Mid-Stage in CNN Backbones for Face-Swapping Deepfake Detection
 
 📄 **Paper: Accepted – Final link will be added after Springer publication**
 
@@ -15,9 +15,7 @@
 
 ## Overview
 
-Face-swapping deepfakes pose severe risks to digital integrity and public trust, largely due to their ability to produce highly realistic manipulations while leaving behind only subtle traces. Traditional detection methods often rely on spatial-domain cues or identity-specific patterns, limiting their generalization ability and exacerbating demographic biases (e.g., racial bias from imbalanced datasets).
-
-To address these challenges, we propose **FAGNet**, a frequency-aware CNN framework built upon EfficientNetV2-S. By leveraging two spectral modules, FAGNet operates in the frequency domain to emphasize manipulation-specific cues and suppress identity-related signals.
+Face-swapping deepfakes pose growing threats to digital authenticity as they become increasingly photorealistic and harder to detect. Conventional detectors often rely on spatial artifacts or identity features, limiting generalization across datasets and demographics. To address this, we propose FIRM-Net, a frequency-integrated CNN built on EfficientNetV2-S that embeds two mid-stage spectral modules — Frequency Attention Gate (FAGate) and Frequency-Enhanced Residual (FER) — to emphasize manipulation-specific frequency cues and reinforce spatial features, achieving robust and generalizable face-swap detection.
 
 <p align="center">
   <img src="assets\Figure 1.png" width="90%" alt="Figure 1: Frequency-residual maps of real vs fake faces">

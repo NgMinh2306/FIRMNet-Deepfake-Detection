@@ -264,7 +264,7 @@ if __name__ == "__main__":
     parser.add_argument("-b", "--band", type=str, default="high", help="Target frequency band")
     parser.add_argument("-m", "--mask_ratio", type=float, default=0.15, help="Mask ratio (only for mask)")
     parser.add_argument("-s", "--scale", type=int, default=3, help="Frequency region scale (>2)")
-    parser.add_argument("--relu", action="store_true", help="Apply ReLU after IFFT")
+    parser.add_argument('--apply_conv', action='store_true', help='Apply Conv3x3+ReLU and Conv1x1+ReLU after IFFT')
     parser.add_argument("--groupnorm", action="store_true", help="Use GroupNorm (default: Identity)")
     args = parser.parse_args()
 

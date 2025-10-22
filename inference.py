@@ -8,12 +8,12 @@ from PIL import Image
 from deepface import DeepFace
 from logger import get_logger
 from datetime import datetime
-from models.backbones import EfficientNetV2S
+from models.backbones import FIRMNet
 from torchvision import transforms
 
 def run_inference(pretrained_path, image_path, device, margin_percent, num_classes=2, detector_backend='yolov8'):
     """
-    Perform inference on a single image to classify it as FAKE or REAL using EfficientNetV2S.
+    Perform inference on a single image to classify it as FAKE or REAL using FIRMNet.
 
     Args:
         pretrained_path (str): Path to the pretrained model weights.
@@ -34,7 +34,7 @@ def run_inference(pretrained_path, image_path, device, margin_percent, num_class
     
     # Load model
     logger.info("Loading model...")
-    model = EfficientNetV2S(num_classes=num_classes).to(device)
+    model = FIRMNet(num_classes=num_classes).to(device)
     with torch.no_grad():
         _ = model(torch.randn(1, 3, 224, 224).to(device))
 
@@ -99,7 +99,7 @@ def run_inference(pretrained_path, image_path, device, margin_percent, num_class
 if __name__ == "__main__":
     import argparse
     
-    parser = argparse.ArgumentParser(description="Perform inference on an image using EfficientNetV2S")
+    parser = argparse.ArgumentParser(description="Perform inference on an image using FIRMNet")
     parser.add_argument("--pretrained", type=str, default="checkpoints/epoch24.pth",
                         help="Path to pretrained weights (optional)")
     parser.add_argument("--device", type=str, choices=["cuda", "cpu"], default="cuda",

@@ -10,7 +10,7 @@ import json
 # ==========================
 # 2. Build Model (CNN + FAGate + FER)
 # ==========================
-from models.backbones import EfficientNetV2S
+from models.backbones import FIRMNet
 import torch
 
 # =============================
@@ -46,9 +46,9 @@ def load_data(args):
 
 
 def build_model(device: torch.device, num_classes=2, pretrained_path=None):
-    logger.info("Initializing model: EfficientNetV2-S + FAGate + FER")
+    logger.info("Initializing model: FIRMNet + FAGate + FER")
 
-    model = EfficientNetV2S(num_classes=num_classes).to(device)
+    model = FIRMNet(num_classes=num_classes).to(device)
 
     total_params = sum(p.numel() for p in model.parameters())
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -120,7 +120,7 @@ def setup_training(model, train_loader, val_loader, device, args, num_epochs=20)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="FAGNet Training Pipeline")
+    parser = argparse.ArgumentParser(description="FIRMNet Training Pipeline")
 
     parser.add_argument("--config", type=str, default="config/config.yaml",
                         help="Path to .json or .yaml config file")

@@ -181,7 +181,7 @@ class FERBlockStack(nn.Module):
             x = fer(x)
         return x
     
-class EfficientNetV2S(nn.Module):
+class FIRMNet(nn.Module):
     def __init__(self, num_classes=2):
         super().__init__()
 
@@ -280,7 +280,7 @@ if __name__ == "__main__":
     input_tensor = transform(image).unsqueeze(0).to(device)
 
     # Run model
-    model = EfficientNetV2S(num_classes=args.num_classes).to(device)
+    model = FIRMNet(num_classes=args.num_classes).to(device)
     model.eval()
     with torch.no_grad():
         logits = model(input_tensor)

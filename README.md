@@ -36,7 +36,7 @@ This design is motivated by our observation that real and fake images exhibit di
 
 - **FER (Frequency-Enhanced Residual):** Refines amplitude features in the frequency domain using a shallow CNN (two 1×1 convolutions), preserves the phase for reconstruction, and adds the result back to the input via a residual connection.
 
-Spectral regularization (e.g., random masking or suppression of low/mid frequencies) helps the model focus on manipulation-specific cues and reduce identity bias. FAGNet performs well on DFDC and FF++ (88.1% on FF++), and generalizes to unseen data like CelebDF. Our framework improves robustness by guiding the model toward spectral cues that generalize across identities and domainson.
+Spectral regularization (e.g., random masking or suppression of low/mid frequencies) helps the model focus on manipulation-specific cues and reduce identity bias. FIRM-Net performs well on DFDC and FF++ (88.1% on FF++), and generalizes to unseen data like CelebDF. Our framework improves robustness by guiding the model toward spectral cues that generalize across identities and domainson.
 
 
 ## Environment Setup
